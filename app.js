@@ -15,23 +15,28 @@ const app = express();
 //Bring in models
 let Message = require('./models/message');
 
-//Load View Engine
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
-
 //Home route
 app.get('/', (req, res) => {
   Message.find({}, (err, messages) => {
     if (err) {
       console.log(err);
     } else {
-      res.render('index', {
-       title:'Messages',
-       messages: messages
-     });
+      res.send(JSON.stringify(messages))
     }
   });
 });
+
+
+// app.post('/', (req, res) => {
+//   Message.find({}, (err, messages) => {
+//     if (err) {
+//       console.log(err);
+//     } else {
+//       res.send(JSON.stringify(messages))
+//     }
+//   });
+// });
+
 
 //Start server
 app.listen(3000, () => {
