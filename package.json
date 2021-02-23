@@ -1,0 +1,17 @@
+{
+  "name": "firstproj",
+  "version": "1.0.0",
+  "description": "Simple app",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app"
+  },
+  "author": "Pasla Codruta",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongodb": "^3.6.3",
+    "mongoose": "^5.11.15",
+    "pug": "^3.0.0"
+  }
+}
