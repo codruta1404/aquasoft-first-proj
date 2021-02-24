@@ -3,6 +3,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const asyncHandler = require('express-async-handler');
 const router = express.Router();
+const bodyParser = require('body-parser');
 
 mongoose.connect('mongodb://localhost/firstProj', {useNewUrlParser: true, useUnifiedTopology: true});
 let db = mongoose.connection.once('open', () => {
@@ -14,6 +15,8 @@ let db = mongoose.connection.once('open', () => {
 //Init app
 const app = express();
 
+app.use(bodyParser.json());
+
 //Bring in models
 let Message = require('./models/message');
 
@@ -23,73 +26,15 @@ app.get('/', asyncHandler(async (req, res) => {
       res.send(JSON.stringify(messages))
 }));
 
-app.post('/', (req, res) => {
+app.post('/',  async (req, res) => {
   const message = new Message({
-  users: [
-    {
-      name: req.body.name,
-      email:req.body.email ,
-      phone: req.body.phone
-    }
-  ],
+  users: req.body.users,
   date: new Date(),
-  messages: [
-    {
-      date:  new Date(),
-      sender:  req.body.sender,
-      receiver:  req.body.receiver,
-      message_content: req.body.message_content
-    }
-  ]
+  messages: req.body.messages
 })
-  Message.create(
-    message, (err, response) => {
-      if(err) {
-        console.log(err)
-      } else {
-        res.json(response)
-      }
-    }
-  )
+  const saved = await message.save()
+  res.json(saved)
 })
-
-// app.post('/', async (req, res) => {
-//     const message = new Message({
-//         ...req.body
-//     })
-//     try {
-//         const newMessage = await message.save()
-//         res.json(newMessage)
-//     }
-//     catch (err) {
-//         res.json({ message: err })
-//     }
-// })
-
-// app.post("/", (req, res) => {
-//   const message = new Message({
-//   users: [
-//     {
-//       name: req.body.name,
-//       email:req.body.email ,
-//       phone: req.body.phone
-//     }
-//   ],
-//   date: new Date(),
-//   messages: [
-//     {
-//       date:  new Date(),
-//       sender:  req.body.sender,
-//       receiver:  req.body.receiver,
-//       message_content: req.body.message_content
-//     }
-//   ]
-//
-//   });
-//   message.save().then(() => res.json("Your message was added"))
-//   .catch((err) => res.status(400).json("Error: " + err));
-// });
-//
 
 //Start server
 app.listen(3000, () => {
