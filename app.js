@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const asyncHandler = require('express-async-handler');
 const router = express.Router();
 const bodyParser = require('body-parser');
+mongoose.set('useFindAndModify', false);
 
 mongoose.connect('mongodb://localhost/firstProj', {useNewUrlParser: true, useUnifiedTopology: true});
 let db = mongoose.connection.once('open', () => {
@@ -34,6 +35,20 @@ app.post('/',  async (req, res) => {
 })
   const saved = await message.save()
   res.json(saved)
+})
+
+app.delete('/delete/:id', async (req, res) => {
+  Message.findByIdAndRemove({_id: req.params.id}).then((deletedMessage) => {
+    res.send(deletedMessage)
+  })
+})
+
+app.put('/update/:id', async (req, res, next) => {
+  Message.findByIdAndUpdate({_id:req.params.id}, req.body).then(() => {
+    Message.findOne({_id:req.params.is}).then((updatedMessage) => {
+      res.send(JSON.stringify(updatedMessage))
+    })
+  })
 })
 
 //Start server
