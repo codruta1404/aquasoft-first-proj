@@ -5,6 +5,7 @@ const asyncHandler = require('express-async-handler');
 const router = express.Router();
 const bodyParser = require('body-parser');
 const prettyFormat = require('pretty-format');
+const fs = require('fs');
 mongoose.set('useFindAndModify', false);
 
 mongoose.connect('mongodb://localhost/firstProj', {useNewUrlParser: true, useUnifiedTopology: true});
@@ -32,7 +33,28 @@ app.get('/descending-date', async (req, res) => {
   const messages = await Message.aggregate([
     {"$sort": {"date": -1}}
   ])
-    res.json(messages)
+  response = JSON.stringify(messages)
+  res.send(response)
+
+  const path = './descending-date.txt'
+  try {
+    if (fs.existsSync(path)) {
+
+      //delete the actual content
+      fs.truncate(path, 0, () => {console.log('Content file deleted!')})
+
+      //add the new data
+      fs.writeFile(path, response, (err) => {
+        if (err) {
+          return console.log(err)
+        }
+        console.log('I put the response in descending-date.txt file')
+      })
+
+    }
+  } catch(err) {
+    console.error('The file does not exist!')
+  }
 })
 
 app.post('/post',  async (req, res) => {
