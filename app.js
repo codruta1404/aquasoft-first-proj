@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const asyncHandler = require('express-async-handler');
 const router = express.Router();
 const bodyParser = require('body-parser');
+const prettyFormat = require('pretty-format');
 mongoose.set('useFindAndModify', false);
 
 mongoose.connect('mongodb://localhost/firstProj', {useNewUrlParser: true, useUnifiedTopology: true});
@@ -24,10 +25,17 @@ let Message = require('./models/message');
 //Home route
 app.get('/', asyncHandler(async (req, res) => {
   const messages = await Message.find({})
-      res.send(JSON.stringify(messages))
-}));
+      res.json(messages)
+}))
 
-app.post('/',  async (req, res) => {
+app.get('/descending-date', async (req, res) => {
+  const messages = await Message.aggregate([
+    {"$sort": {"date": -1}}
+  ])
+    res.json(messages)
+})
+
+app.post('/post',  async (req, res) => {
   const message = new Message({
   users: req.body.users,
   date: new Date(),
@@ -45,7 +53,7 @@ app.delete('/delete/:id', async (req, res) => {
 
 app.put('/update/:id', async (req, res, next) => {
   Message.findByIdAndUpdate({_id:req.params.id}, req.body).then(() => {
-    Message.findOne({_id:req.params.is}).then((updatedMessage) => {
+    Message.findOne({_id:req.params.id}).then((updatedMessage) => {
       res.send(JSON.stringify(updatedMessage))
     })
   })
